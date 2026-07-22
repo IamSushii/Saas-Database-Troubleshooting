@@ -1,0 +1,82 @@
+mysql> create database saas_company;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> use saas_company;
+Database changed
+mysql> create table users (
+    -> user_id INT PRIMARY KEY,
+    -> name VARCHAR(100),
+    -> tier VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE Orders (
+    -> orders_id INT PRIMARY KEY,
+    -> user_id INT,
+    -> amount DECIMAL(10,2),
+    -> status VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> CREATE TABLE API_logs (
+    -> log_id INT PRIMARY KEY,
+    -> user_id INT,
+    -> endpoint VARCHAR(100),
+    -> status_code INT
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> INSERT INTO users
+    ->
+    -> (user_id, name, email, tier) VALUES
+    -> (1,'Aarav Patel', 'aarav@gmail.com', 'Premium'),
+    -> (2,'Priya Sharma','priya@gmail.com','Free'),
+    -> (3,'Rohan Singh','rohan@gmail.com','Premium'),
+    -> (4,'Ananya Gupta','ananya@gmail.com','Premium');
+ERROR 1054 (42S22): Unknown column 'email' in 'field list'
+
+mysql> alter table users add column email VARCHAR(100);
+Query OK, 0 rows affected (0.08 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> insert into users (user_id, name, email, tier) VALUES
+    -> (1,'Aarav Patel', 'aarav@gmail.com', 'Premium'),
+    -> (2,'Priya Sharma','priya@gmail.com','Free'),
+    -> (3,'Rohan Singh','rohan@gmail.com','Premium'),
+    -> (4,'Ananya Gupta','ananya@gmail.com','Premium');
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> insert into Orders (orders_id, user_id, amount, status) VALUES
+    -> (101, 1, 49.99, 'Success'),
+    -> (102, 2, 0.00, 'Failed'),
+    -> (103,3,49.99,'Success'),
+    -> (104,4,49.99,'Success');
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> insert into API_logs (log_id,user_id, endpoint,status_code ) VALUES
+    -> (501,1,'/login',200),
+    -> (502,3,'/checkout',500),
+    -> (503,3,'/checkout',500),
+    -> (504,2,'/upload',200),
+    -> (505,4,'/login',401);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select users.name, users.email, Orders.amount, Orders.status
+    -> from users
+    -> INNER JOIN Orders ON users.user_id=Orders.user_id
+    -> where users.tier='Premium' AND Orders.status='Failed';
+Empty set (0.00 sec)
+
+mysql> select endpoint, count(status_code) as Total_Crashes
+    -> from API_logs
+    -> where status_code = 500
+    -> group by endpoint;
++-----------+---------------+
+| endpoint  | Total_Crashes |
++-----------+---------------+
+| /checkout |             2 |
++-----------+---------------+
+1 row in set (0.00 sec)
